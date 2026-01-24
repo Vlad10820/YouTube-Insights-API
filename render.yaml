@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: metadata-enrichment-api
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:$PORT
+    autoDeploy: true
+    envVars:
+      - key: API_KEY
+        generateValue: true
+      - key: REQUIRE_API_KEY
+        value: "true"
+      - key: RATE_LIMIT_DEFAULT
+        value: "60/minute"
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: ENABLE_METRICS
+        value: "true"
+      - key: CORS_ALLOW_ORIGINS
+        value: "*"
+      - key: REQUIRE_RAPIDAPI_PROXY_SECRET
+        value: "false"
+      - key: RAPIDAPI_PROXY_SECRET
+        sync: false
