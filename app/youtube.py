@@ -26,12 +26,19 @@ class YouTubeConfigError(RuntimeError):
 
 def parse_youtube_video_id(*, video_id: str | None, url: str | None) -> str | None:
     if video_id:
-        vid = video_id.strip()
-        return vid if _YT_VIDEO_ID_RE.match(vid) else vid
-
-    if not url:
+        candidate: str | None = video_id.strip()
+    elif url:
+        candidate = _video_id_from_url(url)
+    else:
         return None
 
+    # Only pass well-formed 11-character IDs on to the YouTube API.
+    if candidate and _YT_VIDEO_ID_RE.match(candidate):
+        return candidate
+    return None
+
+
+def _video_id_from_url(url: str) -> str | None:
     u = url.strip()
     parsed = urlparse(u)
     host = (parsed.netloc or "").lower()
@@ -138,12 +145,7 @@ async def _yt_get(path: str, params: dict[str, Any]) -> dict[str, Any]:
     async with httpx.AsyncClient(timeout=settings.http_timeout_seconds) as client:
         resp = await client.get(full_url, params=merged, headers=headers)
 
-    # YouTube returns JSON errors with details
     if resp.status_code >= 400:
-        try:
-            payload = resp.json()
-        except Exception:
-            payload = {"error": {"message": resp.text}}
         raise httpx.HTTPStatusError("YouTube API error", request=resp.request, response=resp)
 
     data = resp.json()

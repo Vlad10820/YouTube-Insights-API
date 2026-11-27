@@ -25,7 +25,6 @@ app = FastAPI(
         "Production-ready API for YouTube channel/video insights plus URL metadata enrichment. "
         "RapidAPI-compatible authentication and per-subscriber rate limiting included."
     ),
-    contact={"name": "API Support", "url": "https://example.com/support"},
 )
 
 
@@ -90,10 +89,10 @@ allow_headers = _split_csv(settings.cors_allow_headers)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allow_origins if allow_origins != ["*"] else ["*"],
+    allow_origins=allow_origins,
     allow_credentials=settings.cors_allow_credentials,
-    allow_methods=allow_methods if allow_methods != ["*"] else ["*"],
-    allow_headers=allow_headers if allow_headers != ["*"] else ["*"],
+    allow_methods=allow_methods,
+    allow_headers=allow_headers,
 )
 
 

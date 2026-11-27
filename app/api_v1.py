@@ -122,6 +122,14 @@ class YouTubeSearchResponse(BaseModel):
     results: list[YouTubeSearchItem]
 
 
+def _to_int(value: Any) -> int | None:
+    """YouTube returns counts as strings and hides some of them; turn them into ints or None."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def _first(*values: str | None) -> str | None:
     for value in values:
         if value:
@@ -318,12 +326,6 @@ async def youtube_channel(
     stats = channel.get("statistics") or {}
     thumbs = (snippet.get("thumbnails") or {}).get("high") or (snippet.get("thumbnails") or {}).get("default") or {}
 
-    def _to_int(value):  # noqa: ANN001
-        try:
-            return int(value)
-        except Exception:
-            return None
-
     return YouTubeChannelStats(
         ok=True,
         fetched_at=fetched_at,
@@ -385,12 +387,6 @@ async def youtube_latest(
         stats = v.get("statistics") or {}
         thumbs = (snippet.get("thumbnails") or {}).get("high") or (snippet.get("thumbnails") or {}).get("default") or {}
 
-        def _to_int(value):  # noqa: ANN001
-            try:
-                return int(value)
-            except Exception:
-                return None
-
         out.append(
             YouTubeVideoItem(
                 video_id=str(vid),
@@ -429,7 +425,7 @@ async def youtube_video(
         raise http_error(
             status_code=422,
             code="validation_error",
-            message="Provide video_id or url",
+            message="Provide a valid 11-character video_id or a YouTube video URL",
             request_id=getattr(request.state, "request_id", None),
         )
 
@@ -463,12 +459,6 @@ async def youtube_video(
     stats = v.get("statistics") or {}
     content = v.get("contentDetails") or {}
     thumbs = (snippet.get("thumbnails") or {}).get("high") or (snippet.get("thumbnails") or {}).get("default") or {}
-
-    def _to_int(value):  # noqa: ANN001
-        try:
-            return int(value)
-        except Exception:
-            return None
 
     return YouTubeVideoStats(
         ok=True,

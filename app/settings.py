@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    app_name: str = "Metadata Enrichment API"
+    app_name: str = "YouTube Insights API"
     require_api_key: bool = True
     api_key: str = ""
 
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     # Outbound HTTP
     http_timeout_seconds: float = 12.0
-    http_user_agent: str = "metadata-api/1.0 (+https://example.com)"
+    http_user_agent: str = "youtube-insights-api/1.0"
 
     # YouTube Data API v3
     youtube_api_key: str = ""
